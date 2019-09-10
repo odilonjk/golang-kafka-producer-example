@@ -8,6 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	maxId = 4
+	minId = 1
+)
+
 func getTransaction() Transaction {
 	return Transaction{
 		TransactionId: getTransactionId(),
@@ -31,10 +36,10 @@ func getValue() float64 {
 	return math.Round(randomValue*100) / 100
 }
 
-func getPersonId() int64 {
-	return rand.Int63()
+func getPersonId() int {
+	return rand.Intn(maxId-minId+minId) + minId
 }
 
 func getCreationDate() string {
-	return time.Now().Format("2006-01-02T15:04:05-0700")
+	return time.Now().Format("2006-01-02T15:04:05")
 }

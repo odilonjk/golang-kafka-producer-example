@@ -11,16 +11,18 @@ import (
 )
 
 const (
-	kafkaServer = "localhost:9092"
-	topicName   = "transaction"
-	tcp         = "tcp"
-	partition   = 0
+	kafkaBroker1 = "localhost:19092"
+	kafkaBroker2 = "localhost:29092"
+	kafkaBroker3 = "localhost:39092"
+	topicName    = "transaction"
+	tcp          = "tcp"
+	partition    = 0
 )
 
 type Transaction struct {
 	TransactionId string
 	Value         float64
-	PersonId      int64
+	PersonId      int
 	CreationDate  string
 }
 
@@ -28,7 +30,7 @@ func main() {
 
 	start := time.Now()
 
-	Configure([]string{kafkaServer}, topicName)
+	Configure([]string{kafkaBroker1, kafkaBroker2, kafkaBroker3}, topicName)
 
 	messages := getTransactionMessages()
 
@@ -45,9 +47,10 @@ func main() {
 
 func getTransactionMessages() []kafka.Message {
 	messages := []kafka.Message{}
-	for i := 1; i < 101; i++ {
-		jsonMessage, _ := getTransactionJson()
+	for i := 1; i < 5001; i++ {
+		jsonMessage, key := getTransactionJson()
 		message := kafka.Message{
+			Key:   []byte(string(key)),
 			Value: []byte(jsonMessage),
 		}
 		messages = append(messages, message)
@@ -55,9 +58,11 @@ func getTransactionMessages() []kafka.Message {
 	return messages
 }
 
-func getTransactionJson() ([]byte, error) {
+func getTransactionJson() ([]byte, int) {
 	transaction := getTransaction()
-	return json.Marshal(transaction)
+	key := transaction.PersonId
+	json, _ := json.Marshal(transaction)
+	return json, key
 }
 
 func push(parent context.Context, messages []kafka.Message) {

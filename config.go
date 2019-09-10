@@ -23,7 +23,7 @@ func Configure(kafkaBrokerUrls []string, topic string) (w *kafka.Writer, err err
 	config := kafka.WriterConfig{
 		Brokers:          kafkaBrokerUrls,
 		Topic:            topic,
-		Balancer:         &kafka.LeastBytes{},
+		Balancer:         &kafka.CRC32Balancer{},
 		Dialer:           dialer,
 		BatchSize:        batchSize,
 		BatchTimeout:     batchTimeout,
